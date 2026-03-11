@@ -7,44 +7,28 @@
   <meta name="description" content="Portfolio DevOps & Cloud — Infrastructure as code, AWS, Terraform." />
   <link rel="stylesheet" href="css/style.css" />
   <style>
-    .ascii-art {
-      font-family: 'Cascadia Code','JetBrains Mono','Fira Code',Consolas,monospace;
-      font-size: clamp(0.3rem, 0.85vw, 0.5rem);
-      line-height: 1.15;
-      color: var(--text-muted);
-      white-space: pre;
-      user-select: none;
-      margin-top: 52px;
-      display: block;
-      overflow-x: auto;
-    }
-    @media (max-width: 600px) {
-      .ascii-art { display: none; }
-    }
-
-    /* Skills section */
-    .skills-section {
-      padding: 64px 0;
-      border-top: 1px solid var(--border);
-    }
-    .skills-cats {
+    .skills-section { padding: 64px 0; border-top: 1px solid var(--border); }
+    .skill-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 14px;
+      transition: all var(--transition);
     }
-    .skill-row {
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
-    }
-    .skill-cat-label {
-      font-size: 0.75rem;
+    .skill-block:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+    .skill-block-icon { font-size: 1.6rem; }
+    .skill-block-title {
+      font-size: 0.92rem;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--text-muted);
-      width: 120px;
-      flex-shrink: 0;
+      color: var(--text-primary);
+    }
+    .skill-blocks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
     }
   </style>
 </head>
@@ -73,35 +57,6 @@
         <a href="#projets" class="btn btn-primary">Voir les projets</a>
         <a href="https://github.com/" target="_blank" rel="noopener" class="btn btn-outline">GitHub ↗</a>
       </div>
-<pre class="ascii-art">
-         __
-,--.   \(  ` _     _      Kra-a!
-   \\__ J\  / `   ("r  -'                                      ,--.
- __/\_ \ .--.__  / )                                          (    )
-  \  /\ | /""-.`/7(_                                           `--'
-    '\ \ \/`\_ \_.`)\   .__
- \ __   ( L / `- )   ___/_ \
-/.'  ^\_| |,-' /____/'""  ) `
-) . /  L\  \.-'_.-,`\_.                         __
- ,_|_ _( \  .-' \_, ' __                       /_ \
-. /__\ |_  --'""==-._/ _\_              _     /,##/  .--.
-='    /  )  /'"\\--) \                 /  \  (  ` \  \   \
-/ `&gt;-'_    (  -(/ /| '\                \  (  \ \_/ )  \/  .
-  /.-' |c  |   .--.                    /  `. |`._)/    )  |
- /  \  |   /   (   \                  )    ) |    |   / / |
- \  '  &gt;   \    `)  .  _____________  \    / )  \ |   \/  &gt;  ___________
-       | . |     )  |                 /    | Y___\)    |  |
-       )   |    &lt;_/ |                 |    |a888P^    /   (-.
-       |    .--'|`  &gt;                 /    (YPP      8a___.-'
-     aPa`|.'    |   |                a._..a-'       88888P
-  a:f88P-x-'    \   (.             a88888P         8888P
-a8888P   )    `8(___.'           a8888P         888888
-88P     (    888888P            8888P          8888P
-           a8888P             8888P            888
-         a888P               888
-      a8888P
-      88P
-</pre>
     </div>
   </header>
 
@@ -140,44 +95,6 @@ a8888P   )    `8(___.'           a8888P         888888
           </div>
         </article>
 
-        <!-- À venir 2 -->
-        <article class="project-card card-soon">
-          <h3 class="card-title">Pipeline CI/CD avec Docker &amp; GitHub Actions</h3>
-          <p class="card-desc">
-            Mise en place d'un pipeline CI/CD complet : build d'image Docker, tests
-            automatisés, push registry et déploiement continu.
-          </p>
-          <div class="card-tags">
-            <div class="tags">
-              <span class="tag tag-iac">Docker</span>
-              <span class="tag tag-iac">GitHub Actions</span>
-              <span class="tag tag-aws">AWS ECR</span>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-link card-link-ghost" style="cursor:default;opacity:.5">Bientôt disponible</span>
-          </div>
-        </article>
-
-        <!-- À venir 3 -->
-        <article class="project-card card-soon">
-          <h3 class="card-title">Stack Monitoring Prometheus / Grafana</h3>
-          <p class="card-desc">
-            Déploiement d'une solution de monitoring avec alerting, dashboards
-            personnalisés et logs centralisés.
-          </p>
-          <div class="card-tags">
-            <div class="tags">
-              <span class="tag tag-iac">Prometheus</span>
-              <span class="tag tag-iac">Grafana</span>
-              <span class="tag tag-linux">Linux</span>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-link card-link-ghost" style="cursor:default;opacity:.5">Bientôt disponible</span>
-          </div>
-        </article>
-
       </div>
     </div>
   </section>
@@ -189,62 +106,68 @@ a8888P   )    `8(___.'           a8888P         888888
         <p class="section-label">Compétences</p>
         <h2>Acquises en projet</h2>
       </div>
-      <div class="skills-cats">
-        <div class="skill-row">
-          <span class="skill-cat-label">IaC</span>
+      <div class="skill-blocks-grid">
+
+        <div class="skill-block">
+          <div class="skill-block-icon">☁️</div>
+          <div class="skill-block-title">Cloud AWS</div>
+          <div class="tags">
+            <span class="tag tag-ec2">EC2</span>
+            <span class="tag tag-s3">S3</span>
+            <span class="tag tag-rds">RDS</span>
+            <span class="tag tag-vpc">VPC</span>
+            <span class="tag tag-iam">IAM</span>
+          </div>
+        </div>
+
+        <div class="skill-block">
+          <div class="skill-block-icon">🏗️</div>
+          <div class="skill-block-title">Infrastructure as Code</div>
           <div class="tags">
             <span class="tag tag-terraform">Terraform</span>
             <span class="tag tag-iac">HCL</span>
-            <span class="tag tag-iac">Variables &amp; Outputs</span>
-            <span class="tag tag-iac">State Management</span>
           </div>
         </div>
-        <div class="skill-row">
-          <span class="skill-cat-label">Cloud AWS</span>
-          <div class="tags">
-            <span class="tag tag-ec2">EC2</span>
-            <span class="tag tag-rds">RDS MySQL</span>
-            <span class="tag tag-s3">S3</span>
-            <span class="tag tag-vpc">VPC</span>
-            <span class="tag tag-iam">IAM</span>
-            <span class="tag tag-aws">AMI</span>
-          </div>
-        </div>
-        <div class="skill-row">
-          <span class="skill-cat-label">Réseau</span>
-          <div class="tags">
-            <span class="tag tag-vpc">Subnets public/privé</span>
-            <span class="tag tag-vpc">Routage</span>
-            <span class="tag tag-vpc">Internet Gateway</span>
-            <span class="tag tag-iam">Security Groups</span>
-          </div>
-        </div>
-        <div class="skill-row">
-          <span class="skill-cat-label">Sécurité</span>
+
+        <div class="skill-block">
+          <div class="skill-block-icon">🔒</div>
+          <div class="skill-block-title">Sécurité</div>
           <div class="tags">
             <span class="tag tag-iam">IAM Roles</span>
             <span class="tag tag-iam">Moindre privilège</span>
-            <span class="tag tag-s3">Chiffrement AES-256</span>
-            <span class="tag tag-iam">Instance Profile</span>
+            <span class="tag tag-iam">Security Groups</span>
           </div>
         </div>
-        <div class="skill-row">
-          <span class="skill-cat-label">Systèmes</span>
+
+        <div class="skill-block">
+          <div class="skill-block-icon">🌐</div>
+          <div class="skill-block-title">Réseau</div>
           <div class="tags">
-            <span class="tag tag-linux">Linux (Amazon Linux 2023)</span>
-            <span class="tag tag-linux">Bash / Scripting</span>
+            <span class="tag tag-vpc">Subnets</span>
+            <span class="tag tag-vpc">Routage</span>
+            <span class="tag tag-vpc">Internet Gateway</span>
+          </div>
+        </div>
+
+        <div class="skill-block">
+          <div class="skill-block-icon">🐧</div>
+          <div class="skill-block-title">Systèmes Linux</div>
+          <div class="tags">
+            <span class="tag tag-linux">Linux</span>
+            <span class="tag tag-linux">Bash</span>
             <span class="tag tag-apache">Apache</span>
-            <span class="tag tag-apache">PHP 8.1</span>
           </div>
         </div>
-        <div class="skill-row">
-          <span class="skill-cat-label">Bases de données</span>
+
+        <div class="skill-block">
+          <div class="skill-block-icon">🗄️</div>
+          <div class="skill-block-title">Bases de données</div>
           <div class="tags">
-            <span class="tag tag-mysql">MySQL 8.0</span>
+            <span class="tag tag-mysql">MySQL</span>
             <span class="tag tag-rds">RDS Managé</span>
-            <span class="tag tag-rds">Backups automatiques</span>
           </div>
         </div>
+
       </div>
     </div>
   </section>
