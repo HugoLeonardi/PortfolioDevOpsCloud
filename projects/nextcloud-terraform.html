@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Infrastructure 3-Tiers Nextcloud — Portfolio Hugo</title>
+  <meta name="description" content="Déploiement automatisé d'une infrastructure AWS 3-tiers pour Nextcloud avec Terraform : EC2, RDS MySQL, S3, VPC, IAM." />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav>
+    <div class="container nav-inner">
+      <span class="nav-logo">Hugo<span class="dot">.</span>DevOps</span>
+      <ul class="nav-links">
+        <li><a href="../index.html#projets">Projets</a></li>
+        <li><a href="../index.html#competences">Compétences</a></li>
+        <li><a href="https://github.com/" target="_blank" rel="noopener">GitHub ↗</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== BACK ===== -->
+  <div class="back-nav">
+    <div class="container">
+      <a href="../index.html" class="back-link">Retour au portfolio</a>
+    </div>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <header class="project-hero">
+    <div class="container">
+      <div class="project-meta">
+        <span class="project-category">Infrastructure as Code</span>
+        <div class="tags">
+          <span class="tag tag-terraform">Terraform</span>
+          <span class="tag tag-aws">AWS</span>
+          <span class="tag tag-iac">IaC</span>
+        </div>
+      </div>
+      <h1>Infrastructure 3-Tiers<br>Nextcloud sur AWS</h1>
+      <p class="lead">
+        Déploiement entièrement automatisé d'une solution de stockage cloud privé sur AWS.
+        Une commande suffit à provisionner l'ensemble de l'infrastructure : réseau, serveur,
+        base de données managée et stockage objet — sécurité intégrée dès la conception.
+      </p>
+      <div class="project-stats">
+        <div>
+          <div class="stat-value" style="color:var(--accent-green)">6</div>
+          <div class="stat-label">Mesures de sécurité</div>
+        </div>
+        <div>
+          <div class="stat-value" style="color:var(--accent-blue)">1 cmd</div>
+          <div class="stat-label">Pour déployer</div>
+        </div>
+        <div>
+          <div class="stat-value" style="color:var(--accent-purple)">7</div>
+          <div class="stat-label">Ressources AWS</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== BODY ===== -->
+  <main class="project-body">
+    <div class="container content-grid">
+
+      <!-- ========== CONTENU PRINCIPAL ========== -->
+      <div class="main-col">
+
+        <!-- PRÉSENTATION -->
+        <section class="content-section">
+          <h2><span class="s-icon">📌</span> Présentation du projet</h2>
+          <p>
+            Ce projet déploie automatiquement <strong>Nextcloud</strong> — une solution de stockage
+            et partage de fichiers open-source — sur AWS, en suivant une approche
+            <strong>Infrastructure as Code (IaC)</strong> avec Terraform.
+          </p>
+          <p>
+            L'objectif est double : démontrer la maîtrise du provisionnement cloud automatisé,
+            et appliquer les bonnes pratiques de sécurité et d'optimisation des coûts dès la
+            conception de l'architecture.
+          </p>
+          <ul class="prose">
+            <li>Infrastructure entièrement reproductible, versionnée dans Git</li>
+            <li>Déploiement ou destruction en une commande (<code>apply</code> / <code>destroy</code>)</li>
+            <li>Aucune configuration manuelle post-déploiement grâce au script <code>userdata.sh</code></li>
+            <li>Architecture 3-tiers respectant les principes de séparation des responsabilités</li>
+          </ul>
+          <div class="callout callout-info">
+            <span class="callout-icon">ℹ️</span>
+            <p><strong>Contexte :</strong> projet réalisé dans le cadre du BTS SIO SISR (épreuve E4/E5),
+            région AWS <code>eu-west-3</code> (Paris). Stack : Terraform ≥ 1.0 · AWS Provider ~5.0.</p>
+          </div>
+        </section>
+
+        <!-- ARCHITECTURE -->
+        <section class="content-section">
+          <h2><span class="s-icon">🏗️</span> Architecture 3-Tiers</h2>
+          <p>
+            L'infrastructure est organisée en trois couches indépendantes, isolées par des
+            Security Groups et des sous-réseaux dédiés. Seul le serveur web est exposé à Internet ;
+            la base de données et le stockage restent inaccessibles depuis l'extérieur.
+          </p>
+
+          <div class="arch-diagram">
+            <p class="arch-title">Schéma d'infrastructure — AWS eu-west-3 (Paris)</p>
+
+            <div class="arch-internet">
+              🌐 Internet
+            </div>
+            <div style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin-bottom:10px;">
+              ↓ HTTP/HTTPS/SSH
+            </div>
+
+            <div class="arch-aws">
+              <div class="arch-aws-label">☁️ AWS Cloud — eu-west-3</div>
+
+              <div class="arch-vpc">
+                <div class="arch-vpc-label">VPC — 10.0.0.0/16</div>
+                <div class="arch-row">
+
+                  <!-- Tier 1 -->
+                  <div class="arch-subnet arch-subnet-public">
+                    <div class="arch-subnet-label">Tier 1 · Subnet Public · 10.0.1.0/24</div>
+                    <div class="arch-svc">
+                      <span>🖥️</span>
+                      <div>
+                        <strong>EC2 t3.small</strong><br>
+                        <span style="font-size:0.75rem;color:var(--text-muted)">Apache · PHP 8.1 · Nextcloud</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tier 3 -->
+                  <div class="arch-subnet arch-subnet-private">
+                    <div class="arch-subnet-label">Tier 3 · Subnets Privés · 2 AZ</div>
+                    <div class="arch-svc">
+                      <span>🗄️</span>
+                      <div>
+                        <strong>RDS MySQL 8.0</strong><br>
+                        <span style="font-size:0.75rem;color:var(--text-muted)">db.t3.micro · Backups 7j</span>
+                      </div>
+                    </div>
+                    <div class="arch-svc" style="margin-top:6px;opacity:.55;font-size:0.75rem;justify-content:center;">
+                      Subnet failover — 10.0.3.0/24
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tier 2 : S3 -->
+              <div class="arch-s3">
+                <span>🪣</span>
+                <div>
+                  <strong>Tier 2 · S3 Bucket</strong> — Stockage fichiers Nextcloud<br>
+                  <span style="font-size:0.75rem;color:var(--text-muted)">
+                    Accès via IAM Role (aucune clé stockée) · Chiffrement AES-256 · Accès public bloqué
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Règles de flux -->
+            <div class="arch-flows" style="margin-top:18px;">
+              <div class="arch-flow-item"><span class="flow-allow">✔ ALLOW</span> Internet → EC2 (80, 443, 22)</div>
+              <div class="arch-flow-item"><span class="flow-deny">✘ DENY</span>  Internet → RDS (bloqué)</div>
+              <div class="arch-flow-item"><span class="flow-allow">✔ ALLOW</span> EC2 → RDS (3306, interne VPC)</div>
+              <div class="arch-flow-item"><span class="flow-deny">✘ DENY</span>  Internet → S3 (accès public bloqué)</div>
+              <div class="arch-flow-item"><span class="flow-allow">✔ ALLOW</span> EC2 → S3 (via IAM Role uniquement)</div>
+              <div class="arch-flow-item"><span class="flow-deny">✘ DENY</span>  RDS → Internet (pas de route)</div>
+            </div>
+          </div>
+
+          <div class="callout callout-success">
+            <span class="callout-icon">✅</span>
+            <p><strong>Principe de séparation des tiers :</strong> le serveur applicatif est le seul point d'entrée.
+            La base de données et le stockage n'ont aucune surface d'attaque exposée à Internet.</p>
+          </div>
+        </section>
+
+        <!-- SÉCURITÉ -->
+        <section class="content-section">
+          <h2><span class="s-icon">🔒</span> Sécurité</h2>
+          <p>
+            La sécurité est intégrée à l'architecture, pas ajoutée après coup.
+            Six mesures concrètes ont été implémentées, couvrant l'isolation réseau,
+            la gestion des identités et le chiffrement des données.
+          </p>
+
+          <div class="security-grid">
+            <div class="sec-card">
+              <div class="sec-head">
+                <div class="sec-icon">🌐</div>
+                <div class="sec-title">Isolation réseau (VPC)</div>
+              </div>
+              <p class="sec-desc">
+                Infrastructure déployée dans un VPC dédié (<code>10.0.0.0/16</code>).
+                RDS placé dans des subnets privés sans route vers Internet.
+                Seul l'EC2 est dans le subnet public.
+              </p>
+            </div>
+
+            <div class="sec-card">
+              <div class="sec-head">
+                <div class="sec-icon">🛡️</div>
+                <div class="sec-title">Security Groups — Moindre privilège</div>
+              </div>
+              <p class="sec-desc">
+                Le Security Group de RDS n'autorise que le port <code>3306</code>
+                en provenance du Security Group EC2 (pas d'une IP). Toute autre
+                connexion est refusée par défaut.
+              </p>
+            </div>
+
+            <div class="sec-card">
+              <div class="sec-head">
+                <div class="sec-icon">🔑</div>
+                <div class="sec-title">IAM Role — Sans credentials stockés</div>
+              </div>
+              <p class="sec-desc">
+                L'EC2 accède à S3 via un IAM Role (Instance Profile), sans clé
+                d'accès hardcodée. Les permissions sont limitées aux actions
+                nécessaires (<code>GetObject</code>, <code>PutObject</code>,
+                <code>DeleteObject</code>, <code>ListBucket</code>) sur le bucket
+                spécifique uniquement.
+              </p>
+            </div>
+
+            <div class="sec-card">
+              <div class="sec-head">
+                <div class="sec-icon">🔐</div>
+                <div class="sec-title">Chiffrement S3 (AES-256)</div>
+              </div>
+              <p class="sec-desc">
+                Chiffrement serveur activé sur le bucket (<code>SSE-S3 AES-256</code>).
+                Accès public entièrement bloqué via <code>aws_s3_bucket_public_access_block</code>
+                (4 paramètres à <code>true</code>).
+              </p>
+            </div>
+
+            <div class="sec-card">
+              <div class="sec-head">
+                <div class="sec-icon">💽</div>
+                <div class="sec-title">Volume EC2 chiffré (gp3)</div>
+              </div>
+              <p class="sec-desc">
+                Le disque racine de l'instance EC2 est chiffré (<code>encrypted = true</code>),
+                en type <code>gp3</code> pour de meilleures performances sans surcoût.
+              </p>
+            </div>
+
+            <div class="sec-card warn">
+              <div class="sec-head">
+                <div class="sec-icon">⚠️</div>
+                <div class="sec-title">SSH — À restreindre en production</div>
+              </div>
+              <p class="sec-desc">
+                En environnement de lab, le port 22 est ouvert sur <code>0.0.0.0/0</code>.
+                En production, il faut remplacer par <code>VOTRE_IP/32</code>
+                ou utiliser AWS Systems Manager Session Manager (sans port SSH ouvert).
+              </p>
+            </div>
+          </div>
+
+          <h3 style="margin-top:32px;margin-bottom:14px;font-size:1rem;color:var(--text-secondary);">
+            Extraits de code clés
+          </h3>
+
+          <!-- SG RDS référence le SG EC2 -->
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">
+            ① Security Group RDS — source = SG de l'EC2, pas une IP
+          </p>
+          <div class="code-block">
+            <span class="code-lang">terraform</span>
+            <pre><span class="code-comment"># MySQL uniquement depuis le serveur EC2</span>
+<span class="code-key">ingress</span> {
+  <span class="code-key">from_port</span>       = <span class="code-val">3306</span>
+  <span class="code-key">to_port</span>         = <span class="code-val">3306</span>
+  <span class="code-key">protocol</span>        = <span class="code-str">"tcp"</span>
+  <span class="code-key">security_groups</span> = [<span class="code-fn">aws_security_group.ec2.id</span>]
+  <span class="code-comment"># Référence le SG, pas une IP → plus robuste</span>
+}</pre>
+          </div>
+
+          <!-- IAM policy scopée au bucket -->
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;margin-top:16px;">
+            ② IAM Policy — droits limités au bucket spécifique
+          </p>
+          <div class="code-block">
+            <span class="code-lang">terraform</span>
+            <pre><span class="code-key">Resource</span> = [
+  <span class="code-fn">aws_s3_bucket.nextcloud_storage.arn</span>,
+  <span class="code-str">"${aws_s3_bucket.nextcloud_storage.arn}/*"</span>
+  <span class="code-comment"># Accès limité à CE bucket uniquement</span>
+]</pre>
+          </div>
+
+          <!-- S3 Public Access Block -->
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;margin-top:16px;">
+            ③ S3 — blocage complet de l'accès public
+          </p>
+          <div class="code-block">
+            <span class="code-lang">terraform</span>
+            <pre><span class="code-key">block_public_acls</span>       = <span class="code-val">true</span>
+<span class="code-key">block_public_policy</span>     = <span class="code-val">true</span>
+<span class="code-key">ignore_public_acls</span>      = <span class="code-val">true</span>
+<span class="code-key">restrict_public_buckets</span> = <span class="code-val">true</span></pre>
+          </div>
+        </section>
+
+        <!-- IMPLÉMENTATION CLÉS -->
+        <section class="content-section">
+          <h2><span class="s-icon">⚙️</span> Points d'implémentation notables</h2>
+
+          <h3 style="margin-bottom:10px;font-size:0.95rem;">Userdata — Installation automatique au premier démarrage</h3>
+          <p style="font-size:0.88rem;">
+            Le script <code>userdata.sh</code> est passé à l'EC2 via <code>templatefile()</code>,
+            ce qui permet d'injecter dynamiquement les variables Terraform (endpoint RDS, nom du
+            bucket, région…) dans le script shell. Nextcloud est installé et configuré sans
+            aucune intervention manuelle.
+          </p>
+          <div class="code-block">
+            <span class="code-lang">terraform</span>
+            <pre><span class="code-key">user_data</span> = <span class="code-fn">templatefile</span>(<span class="code-str">"userdata.sh"</span>, {
+  <span class="code-key">db_host</span>     = <span class="code-fn">aws_db_instance.nextcloud.address</span>
+  <span class="code-key">s3_bucket</span>   = <span class="code-fn">aws_s3_bucket.nextcloud_storage.bucket</span>
+  <span class="code-key">aws_region</span>  = <span class="code-val">var.aws_region</span>
+  <span class="code-comment"># ... autres variables injectées automatiquement</span>
+})</pre>
+          </div>
+
+          <h3 style="margin-bottom:10px;margin-top:24px;font-size:0.95rem;">Dépendance explicite EC2 → RDS</h3>
+          <p style="font-size:0.88rem;">
+            L'EC2 démarre uniquement quand RDS est prêt (provisionnement ~10 min),
+            évitant les erreurs de connexion à la base de données au démarrage.
+          </p>
+          <div class="code-block">
+            <span class="code-lang">terraform</span>
+            <pre><span class="code-key">depends_on</span> = [<span class="code-fn">aws_db_instance.nextcloud</span>]
+<span class="code-comment"># Terraform attend que RDS soit en état "available"</span>
+<span class="code-comment"># avant de lancer l'EC2</span></pre>
+          </div>
+
+          <h3 style="margin-bottom:10px;margin-top:24px;font-size:0.95rem;">Unicité du nom S3 avec random_id</h3>
+          <p style="font-size:0.88rem;">
+            Les noms de buckets S3 sont globalement uniques sur AWS. Un suffixe aléatoire
+            est généré automatiquement pour éviter les conflits lors de redéploiements.
+          </p>
+          <div class="code-block">
+            <span class="code-lang">terraform</span>
+            <pre><span class="code-key">resource</span> <span class="code-str">"random_id"</span> <span class="code-str">"bucket_suffix"</span> {
+  <span class="code-key">byte_length</span> = <span class="code-val">4</span>
+}
+
+<span class="code-key">bucket</span> = <span class="code-str">"${var.project_name}-storage-${random_id.bucket_suffix.hex}"</span>
+<span class="code-comment"># → ex: nextcloud-sio-storage-a1b2c3d4</span></pre>
+          </div>
+        </section>
+
+        <!-- DÉPLOIEMENT -->
+        <section class="content-section">
+          <h2><span class="s-icon">🚀</span> Déploiement</h2>
+          <p>L'infrastructure complète se déploie en 4 étapes, en moins de 15 minutes.</p>
+
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Prérequis</div>
+                <div class="step-desc">
+                  Installer <strong>Terraform ≥ 1.0</strong> et l'<strong>AWS CLI</strong>,
+                  configurer les credentials (<code>aws configure</code>) et créer
+                  une paire de clés SSH dans la console AWS.
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Initialisation</div>
+                <div class="step-desc">
+                  <code>terraform init</code> — télécharge le provider AWS
+                  et initialise le backend local.
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Plan &amp; Apply</div>
+                <div class="step-desc">
+                  <code>terraform plan</code> pour vérifier les ressources à créer,
+                  puis <code>terraform apply</code> et confirmer avec <code>yes</code>.
+                  ⏱ ~10-15 min (RDS est long à provisionner).
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <div class="step-title">Récupération des outputs</div>
+                <div class="step-desc">
+                  <code>terraform output</code> affiche l'URL Nextcloud, la commande SSH,
+                  l'endpoint RDS et le nom du bucket S3.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div><!-- / main-col -->
+
+      <!-- ========== SIDEBAR ========== -->
+      <aside class="sidebar">
+
+        <div class="sidebar-card">
+          <h4>Fiche technique</h4>
+          <div class="s-list">
+            <div class="s-item"><span class="s-key">Provider</span><span class="s-val">AWS eu-west-3</span></div>
+            <div class="s-item"><span class="s-key">IaC</span><span class="s-val">Terraform ≥ 1.0</span></div>
+            <div class="s-item"><span class="s-key">Serveur</span><span class="s-val">EC2 t3.small</span></div>
+            <div class="s-item"><span class="s-key">OS</span><span class="s-val">Amazon Linux 2023</span></div>
+            <div class="s-item"><span class="s-key">Base de données</span><span class="s-val">RDS MySQL 8.0</span></div>
+            <div class="s-item"><span class="s-key">Stockage</span><span class="s-val">S3 Bucket</span></div>
+            <div class="s-item"><span class="s-key">Serveur web</span><span class="s-val">Apache + PHP 8.1</span></div>
+            <div class="s-item"><span class="s-key">Application</span><span class="s-val">Nextcloud</span></div>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <h4>Ressources AWS</h4>
+          <div class="tags" style="gap:6px;">
+            <span class="tag tag-vpc">VPC</span>
+            <span class="tag tag-vpc">Subnets ×3</span>
+            <span class="tag tag-vpc">Internet GW</span>
+            <span class="tag tag-vpc">Route Table</span>
+            <span class="tag tag-iam">Security Groups ×2</span>
+            <span class="tag tag-ec2">EC2</span>
+            <span class="tag tag-rds">RDS MySQL</span>
+            <span class="tag tag-s3">S3 Bucket</span>
+            <span class="tag tag-iam">IAM Role</span>
+            <span class="tag tag-iam">IAM Policy</span>
+            <span class="tag tag-iam">Instance Profile</span>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <h4>Sécurité — Résumé</h4>
+          <div class="s-list">
+            <div class="s-item">
+              <span class="s-key">RDS exposé à Internet</span>
+              <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✘ Non</span>
+            </div>
+            <div class="s-item">
+              <span class="s-key">Credentials S3 stockés</span>
+              <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✘ Non</span>
+            </div>
+            <div class="s-item">
+              <span class="s-key">Chiffrement S3</span>
+              <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✔ AES-256</span>
+            </div>
+            <div class="s-item">
+              <span class="s-key">Chiffrement EC2</span>
+              <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✔ gp3</span>
+            </div>
+            <div class="s-item">
+              <span class="s-key">S3 accès public</span>
+              <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✘ Bloqué</span>
+            </div>
+            <div class="s-item">
+              <span class="s-key">SSH restreint (prod)</span>
+              <span style="color:var(--accent-orange);font-weight:700;font-size:0.85rem;">⚠ À faire</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <h4>Liens</h4>
+          <div class="sidebar-links">
+            <a href="https://github.com/" target="_blank" rel="noopener" class="sidebar-link">
+              <span class="link-icon">📂</span> Code source GitHub
+            </a>
+            <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs" target="_blank" rel="noopener" class="sidebar-link">
+              <span class="link-icon">📖</span> Terraform AWS Docs
+            </a>
+          </div>
+        </div>
+
+      </aside>
+
+    </div><!-- / content-grid -->
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="container">
+      <p>Hugo · BTS SIO SISR · 2025-2026</p>
+      <p style="margin-top:8px;">
+        <a href="../index.html">← Retour au portfolio</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
