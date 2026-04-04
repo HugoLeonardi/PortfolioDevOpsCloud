@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hugo — Portfolio DevOps & Cloud</title>
-  <meta name="description" content="Portfolio DevOps & Cloud — Infrastructure as code, AWS, Terraform." />
+  <title>Hugo — Portfolio Alternance Infra / DevOps</title>
+  <meta name="description" content="Portfolio Alternance Infra / DevOps — Infrastructure as code, AWS, self-hosted, automatisation." />
   <link rel="stylesheet" href="css/style.css" />
   <style>
     .skills-section { padding: 64px 0; border-top: 1px solid var(--border); }
@@ -49,9 +49,9 @@
   <!-- HERO -->
   <header class="hero">
     <div class="container">
-      <h1>Hugo<br><span class="gradient">DevOps &amp; Cloud</span></h1>
+      <h1>Hugo<br><span class="gradient">Alternance Infra / DevOps</span></h1>
       <p class="hero-sub">
-        Étudiant BTS SIO SISR — infrastructure as code, AWS, automatisation du déploiement.
+        Étudiant BTS SIO SISR — infrastructure as code, AWS, self-hosted, automatisation du déploiement.
       </p>
       <div class="hero-actions">
         <a href="#projets" class="btn btn-primary">Voir les projets</a>
@@ -92,6 +92,29 @@
           <div class="card-footer">
             <a href="projects/nextcloud-terraform.html" class="card-link card-link-primary">Voir le projet →</a>
             <a href="https://github.com/HugoLeonardi/Nextcloud-terraform" target="_blank" rel="noopener" class="card-link card-link-ghost">GitHub ↗</a>
+          </div>
+        </article>
+
+        <!-- Projet 2 -->
+        <article class="project-card">
+          <h3 class="card-title">Serveur LLM Self-Hosted</h3>
+          <p class="card-desc">
+            Stack Docker Compose complète pour un serveur IA self-hosted : Open WebUI connecté
+            à Ollama (GPU AMD ROCm), Nextcloud, reverse proxy Caddy HTTPS et SSO Authelia.
+            Architecture orientée production avec VPN WireGuard et chiffrement de bout en bout.
+          </p>
+          <div class="card-tags">
+            <div class="tags">
+              <span class="tag tag-docker">Docker</span>
+              <span class="tag tag-caddy">Caddy</span>
+              <span class="tag tag-authelia">Authelia</span>
+              <span class="tag tag-linux">Linux</span>
+              <span class="tag tag-wireguard">WireGuard</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <a href="projects/llm-server.html" class="card-link card-link-primary">Voir le projet →</a>
+            <a href="https://github.com/HugoLeonardi/llm-server" target="_blank" rel="noopener" class="card-link card-link-ghost">GitHub ↗</a>
           </div>
         </article>
 
@@ -185,7 +208,26 @@
           <div class="skill-block-title">Bases de données</div>
           <div class="tags">
             <span class="tag tag-mysql">MySQL</span>
-            <span class="tag tag-rds">RDS Managé</span>
+            <span class="tag tag-mysql">MariaDB</span>
+          </div>
+        </div>
+
+        <div class="skill-block">
+          <div class="skill-block-icon">🐳</div>
+          <div class="skill-block-title">Conteneurs</div>
+          <div class="tags">
+            <span class="tag tag-docker">Docker</span>
+            <span class="tag tag-docker">Docker Compose</span>
+          </div>
+        </div>
+
+        <div class="skill-block">
+          <div class="skill-block-icon">🔐</div>
+          <div class="skill-block-title">SSO &amp; Proxy</div>
+          <div class="tags">
+            <span class="tag tag-authelia">Authelia</span>
+            <span class="tag tag-caddy">Caddy</span>
+            <span class="tag tag-wireguard">WireGuard</span>
           </div>
         </div>
 
