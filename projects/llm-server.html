@@ -41,16 +41,6 @@
         </div>
       </div>
       <h1>Serveur LLM<br>Self-Hosted</h1>
-      <div style="margin:18px 0 0;display:inline-flex;align-items:center;gap:10px;background:rgba(83,253,233,.08);color:#53FDE9;border:1px solid rgba(83,253,233,.3);border-radius:8px;padding:8px 18px;font-size:0.9rem;font-weight:700;letter-spacing:.06em;">
-        <span style="width:8px;height:8px;border-radius:50%;background:#53FDE9;display:inline-block;animation:pulse-wip 1.8s ease-in-out infinite;flex-shrink:0;"></span>
-        PROJET EN COURS
-      </div>
-      <style>
-        @keyframes pulse-wip {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: .35; transform: scale(.75); }
-        }
-      </style>
       <p class="lead">
         Déploiement d'une stack complète pour faire tourner des modèles de langage en local,
         avec interface web, cloud privé, SSO et reverse proxy HTTPS — le tout sur une machine
@@ -67,7 +57,7 @@
         </div>
         <div>
           <div class="stat-value" style="color:var(--accent-purple)">HTTPS</div>
-          <div class="stat-label">TLS local + SSO</div>
+          <div class="stat-label">Let's Encrypt + SSO</div>
         </div>
       </div>
     </div>
@@ -91,22 +81,23 @@
           </p>
           <p>
             La stack est orchestrée avec <strong>Docker Compose</strong> et expose chaque service
-            derrière un reverse proxy <strong>Caddy</strong> (HTTPS automatique) protégé par
-            <strong>Authelia</strong> (SSO + 2FA). Le modèle LLM tourne via
+            derrière un reverse proxy <strong>Caddy</strong> (HTTPS automatique Let's Encrypt) protégé par
+            <strong>Authelia</strong> (SSO). Le modèle LLM tourne via
             <strong>Ollama</strong> directement sur le GPU AMD (bare metal, ROCm).
           </p>
           <ul class="prose">
             <li>Architecture modulaire : chaque service est isolé dans son propre conteneur</li>
-            <li>HTTPS en local avec certificat CA interne Caddy (<code>tls internal</code>)</li>
+            <li>HTTPS automatique via Caddy + Let's Encrypt sur domaine personnalisé</li>
             <li>Authentification centralisée via Authelia (cookie de session SSO)</li>
             <li>Stockage cloud privé avec Nextcloud (MariaDB + Redis)</li>
             <li>Ollama bare metal pour accès direct GPU sans overhead de virtualisation</li>
+            <li>Installation entièrement automatisée via <code>setup.sh</code></li>
           </ul>
           <div class="callout callout-info">
             <span class="callout-icon">ℹ️</span>
-            <p><strong>Contexte :</strong> usage professionnel personnel. Domaine local <code>llm.test</code>
-            (phase test) → vrai domaine + Let's Encrypt automatique en production.
-            GPU : AMD RX 6950 XT 16 Go VRAM via ROCm 7.x.</p>
+            <p><strong>Contexte :</strong> usage professionnel personnel. Domaine <code>alba-arietis.com</code>
+            avec certificats Let's Encrypt automatiques.
+            GPU : AMD RX 6950 XT 16 Go VRAM via ROCm 6.4.</p>
           </div>
         </section>
 
@@ -115,15 +106,15 @@
           <h2><span class="s-icon">🏗️</span> Architecture des services</h2>
           <p>
             La stack repose sur Docker Compose. Caddy est le seul point d'entrée exposé :
-            il dispatch le trafic vers les services selon le sous-domaine, après vérification
+            il dispatche le trafic vers les services selon le sous-domaine, après vérification
             par Authelia. Ollama tourne en bare metal pour exploiter directement le GPU.
           </p>
 
           <div class="arch-diagram">
-            <p class="arch-title">Stack — Ubuntu 24.04 · llm.test</p>
+            <p class="arch-title">Stack — Ubuntu 24.04 · alba-arietis.com</p>
 
             <div class="arch-internet">
-              🌐 Navigateur / Client
+              🌐 Internet
             </div>
             <div style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin-bottom:10px;">
               ↓ HTTPS :443
@@ -134,23 +125,23 @@
 
               <div class="arch-vpc">
                 <div class="arch-vpc-label">
-                  <span style="color:var(--accent-green);">Caddy</span> — Reverse Proxy (tls internal)
+                  <span style="color:var(--accent-green);">Caddy</span> — Reverse Proxy (Let's Encrypt)
                 </div>
                 <div class="arch-row" style="flex-wrap:wrap;gap:10px;">
 
                   <div class="arch-subnet arch-subnet-public" style="flex:1;min-width:160px;">
-                    <div class="arch-subnet-label">auth.llm.test</div>
+                    <div class="arch-subnet-label">auth.alba-arietis.com</div>
                     <div class="arch-svc">
                       <span>🔐</span>
                       <div>
                         <strong>Authelia</strong><br>
-                        <span style="font-size:0.75rem;color:var(--text-muted)">SSO · 2FA (prod) · SQLite</span>
+                        <span style="font-size:0.75rem;color:var(--text-muted)">SSO · SQLite</span>
                       </div>
                     </div>
                   </div>
 
                   <div class="arch-subnet arch-subnet-public" style="flex:1;min-width:160px;">
-                    <div class="arch-subnet-label">chat.llm.test</div>
+                    <div class="arch-subnet-label">chat.alba-arietis.com</div>
                     <div class="arch-svc">
                       <span>🤖</span>
                       <div>
@@ -161,7 +152,7 @@
                   </div>
 
                   <div class="arch-subnet arch-subnet-private" style="flex:1;min-width:160px;">
-                    <div class="arch-subnet-label">cloud.llm.test</div>
+                    <div class="arch-subnet-label">cloud.alba-arietis.com</div>
                     <div class="arch-svc">
                       <span>☁️</span>
                       <div>
@@ -172,12 +163,12 @@
                   </div>
 
                   <div class="arch-subnet arch-subnet-private" style="flex:1;min-width:160px;">
-                    <div class="arch-subnet-label">portainer.llm.test</div>
+                    <div class="arch-subnet-label">portainer.alba-arietis.com</div>
                     <div class="arch-svc">
                       <span>🐳</span>
                       <div>
                         <strong>Portainer</strong><br>
-                        <span style="font-size:0.75rem;color:var(--text-muted)">Gestion containers</span>
+                        <span style="font-size:0.75rem;color:var(--text-muted)">Gestion Docker</span>
                       </div>
                     </div>
                   </div>
@@ -185,77 +176,66 @@
                 </div>
               </div>
 
-              <div class="arch-s3" style="margin-top:12px;">
-                <span>⚡</span>
+              <div class="arch-s3" style="margin-top:10px;">
+                <span>🤖</span>
                 <div>
-                  <strong>Ollama</strong> — Bare metal (hors Docker)<br>
+                  <strong>Ollama — bare metal</strong> — port 11434 · modèles sur disque NVMe dédié (<code>/data/ollama/models</code>)<br>
                   <span style="font-size:0.75rem;color:var(--text-muted)">
-                    GPU AMD RX 6950 XT · ROCm 7.x · Port 11434 · Accès direct VRAM sans overhead
+                    ROCm 6.4 · AMD RX 6950 XT · gfx1030 · 16 Go VRAM
                   </span>
                 </div>
               </div>
             </div>
 
             <div class="arch-flows" style="margin-top:18px;">
-              <div class="arch-flow-item"><span class="flow-allow">✔ ALLOW</span> Client → Caddy (443, HTTPS)</div>
-              <div class="arch-flow-item"><span class="flow-allow">✔ ALLOW</span> Caddy → Authelia (vérif. session SSO)</div>
-              <div class="arch-flow-item"><span class="flow-allow">✔ ALLOW</span> Open WebUI → Ollama (11434, localhost)</div>
-              <div class="arch-flow-item"><span class="flow-deny">✘ DENY</span>  Services → Internet (pas de route directe)</div>
-              <div class="arch-flow-item"><span class="flow-allow">✔ FUTUR</span> Client distant → WireGuard VPN → Stack</div>
+              <div class="arch-flow-item"><span class="flow-allow">✔ ALLOW</span> Internet → Caddy (80 ACME, 443 HTTPS)</div>
+              <div class="arch-flow-item"><span class="flow-allow">✔ ALLOW</span> Caddy → Authelia (forward-auth)</div>
+              <div class="arch-flow-item"><span class="flow-allow">✔ ALLOW</span> Caddy → Services (après auth)</div>
+              <div class="arch-flow-item"><span class="flow-allow">✔ ALLOW</span> Open WebUI → Ollama (host.docker.internal:11434)</div>
+              <div class="arch-flow-item"><span class="flow-deny">✘ DENY</span> Accès direct aux services sans Authelia</div>
+              <div class="arch-flow-item"><span class="flow-deny">✘ DENY</span> Ollama exposé sur Internet</div>
             </div>
-          </div>
-
-          <div class="callout callout-success">
-            <span class="callout-icon">✅</span>
-            <p><strong>Séparation des responsabilités :</strong> Caddy gère le TLS et le routage,
-            Authelia gère l'identité, chaque service applicatif est isolé dans son conteneur.
-            Ollama reste bare metal pour un accès GPU sans couche de virtualisation supplémentaire.</p>
           </div>
         </section>
 
         <!-- SÉCURITÉ -->
         <section class="content-section">
           <h2><span class="s-icon">🔒</span> Sécurité</h2>
-          <p>
-            La stack est conçue pour être déployée en production avec un minimum de modifications.
-            Les choix de sécurité sont documentés et distinguent clairement la phase de test
-            de la configuration cible.
-          </p>
 
           <div class="security-grid">
             <div class="sec-card">
               <div class="sec-head">
-                <div class="sec-icon">🔒</div>
-                <div class="sec-title">HTTPS partout (Caddy TLS)</div>
+                <div class="sec-icon">🔀</div>
+                <div class="sec-title">HTTPS automatique — Let's Encrypt</div>
               </div>
               <p class="sec-desc">
-                En local : <code>tls internal</code> génère un CA local Caddy et des certificats
-                signés automatiquement. En production, un simple changement de domaine
-                active Let's Encrypt sans modifier la configuration applicative.
+                Caddy gère automatiquement l'émission et le renouvellement des certificats
+                TLS. Le port 80 reste ouvert uniquement pour le challenge ACME HTTP-01 —
+                tout le trafic est redirigé vers HTTPS.
               </p>
             </div>
 
             <div class="sec-card">
               <div class="sec-head">
                 <div class="sec-icon">🔐</div>
-                <div class="sec-title">SSO centralisé — Authelia</div>
+                <div class="sec-title">Authelia SSO — forward_auth</div>
               </div>
               <p class="sec-desc">
-                Toutes les applications passent par Authelia. Un seul point d'authentification,
-                une seule session. Configuration <code>one_factor</code> en test,
-                TOTP (<code>two_factor</code>) prévu pour la production.
+                Chaque sous-domaine est protégé via le mécanisme <code>forward_auth</code>
+                de Caddy. Aucun service n'est accessible sans session Authelia valide.
+                Reset de mot de passe désactivé — gestion manuelle via <code>users_database.yml</code>.
               </p>
             </div>
 
             <div class="sec-card">
               <div class="sec-head">
-                <div class="sec-icon">🌐</div>
-                <div class="sec-title">Domaine cookie-safe</div>
+                <div class="sec-icon">🛡️</div>
+                <div class="sec-title">Pare-feu UFW</div>
               </div>
               <p class="sec-desc">
-                Le domaine <code>llm.test</code> est utilisé à la place de <code>localhost</code> :
-                les cookies de session Authelia nécessitent un domaine avec point.
-                Configuré via <code>/etc/hosts</code> en local.
+                Seuls les ports nécessaires sont ouverts : 22 (SSH), 80 (ACME), 443 (HTTPS),
+                51820 (WireGuard). Ollama écoute sur toutes les interfaces en interne
+                mais n'est pas exposé publiquement.
               </p>
             </div>
 
@@ -265,33 +245,34 @@
                 <div class="sec-title">Secrets dans .env (hors Git)</div>
               </div>
               <p class="sec-desc">
-                Tous les mots de passe et tokens (MariaDB, Nextcloud, Authelia JWT…) sont
-                stockés dans un fichier <code>.env</code> non commité. Les hashs
-                bcrypt sont générés via l'image officielle Authelia.
+                Tous les secrets (MariaDB, Nextcloud, JWT Authelia, clés de session)
+                sont générés automatiquement avec <code>openssl rand</code> et stockés
+                dans un <code>.env</code> exclu de Git. Les hashs bcrypt sont générés
+                via l'image officielle Authelia.
+              </p>
+            </div>
+
+            <div class="sec-card">
+              <div class="sec-head">
+                <div class="sec-icon">📡</div>
+                <div class="sec-title">VPN WireGuard — Freebox</div>
+              </div>
+              <p class="sec-desc">
+                Accès distant au réseau local via WireGuard hébergé sur la Freebox Pop.
+                Permet d'accéder au serveur sur son IP privée (<code>192.168.2.56</code>)
+                sans exposer de ports supplémentaires.
               </p>
             </div>
 
             <div class="sec-card">
               <div class="sec-head">
                 <div class="sec-icon">🔑</div>
-                <div class="sec-title">Mots de passe — Bcrypt</div>
+                <div class="sec-title">Mots de passe — Bcrypt cost 12</div>
               </div>
               <p class="sec-desc">
-                Les mots de passe Authelia sont stockés en hash bcrypt dans
+                Les mots de passe Authelia sont stockés en hash bcrypt (coût 12) dans
                 <code>users_database.yml</code>. Génération via l'image officielle :
-                aucun mot de passe en clair dans les fichiers de configuration.
-              </p>
-            </div>
-
-            <div class="sec-card warn">
-              <div class="sec-head">
-                <div class="sec-icon">⚠️</div>
-                <div class="sec-title">2FA — À activer en production</div>
-              </div>
-              <p class="sec-desc">
-                La politique <code>one_factor</code> est utilisée pour simplifier les tests.
-                En production : passer à <code>two_factor</code> (TOTP), activer
-                <code>ufw</code> et restreindre les accès SSH.
+                aucun mot de passe en clair dans les fichiers versionnés.
               </p>
             </div>
           </div>
@@ -301,12 +282,12 @@
           </h3>
 
           <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">
-            ① Caddyfile — TLS interne + forward auth Authelia
+            ① Caddyfile — Let's Encrypt + forward auth Authelia
           </p>
           <div class="code-block">
             <span class="code-lang">caddyfile</span>
-            <pre><span class="code-key">chat.llm.test</span> {
-  <span class="code-key">tls internal</span>
+            <pre><span class="code-comment"># Caddy émet le certificat Let's Encrypt automatiquement</span>
+<span class="code-key">chat.alba-arietis.com</span> {
   <span class="code-fn">forward_auth</span> authelia:9091 {
     <span class="code-key">uri</span> <span class="code-str">/api/authz/forward-auth</span>
     <span class="code-key">copy_headers</span> Remote-User Remote-Groups Remote-Name Remote-Email
@@ -334,10 +315,10 @@ docker run --rm authelia/authelia:latest \
             <pre><span class="code-key">access_control</span>:
   <span class="code-key">default_policy</span>: <span class="code-str">deny</span>
   <span class="code-key">rules</span>:
-    - <span class="code-key">domain</span>: <span class="code-str">'auth.llm.test'</span>
+    - <span class="code-key">domain</span>: <span class="code-str">'auth.alba-arietis.com'</span>
       <span class="code-key">policy</span>: <span class="code-str">bypass</span>
-    - <span class="code-key">domain</span>: <span class="code-str">'*.llm.test'</span>
-      <span class="code-key">policy</span>: <span class="code-str">one_factor</span>  <span class="code-comment"># → two_factor en prod</span></pre>
+    - <span class="code-key">domain</span>: <span class="code-str">'*.alba-arietis.com'</span>
+      <span class="code-key">policy</span>: <span class="code-str">one_factor</span></pre>
           </div>
         </section>
 
@@ -349,9 +330,9 @@ docker run --rm authelia/authelia:latest \
           <p style="font-size:0.88rem;">
             Open WebUI fournit une interface chat compatible avec l'API Ollama. Ollama tourne
             en bare metal (hors Docker) pour accéder directement au GPU AMD RX 6950 XT via
-            ROCm — sans overhead de virtualisation, avec accès direct aux 16 Go de VRAM.
-            Open WebUI se connecte à Ollama via <code>localhost:11434</code> avec le mode
-            réseau <code>host</code>.
+            ROCm 6.4 — sans overhead de virtualisation, avec accès direct aux 16 Go de VRAM.
+            Open WebUI se connecte à Ollama via <code>host.docker.internal:11434</code>.
+            Les modèles sont stockés sur un second disque NVMe dédié monté sur <code>/data</code>.
           </p>
 
           <h3 style="margin-bottom:10px;margin-top:24px;font-size:0.95rem;">Nextcloud + MariaDB + Redis</h3>
@@ -364,95 +345,102 @@ docker run --rm authelia/authelia:latest \
           <h3 style="margin-bottom:10px;margin-top:24px;font-size:0.95rem;">Portainer</h3>
           <p style="font-size:0.88rem;">
             Interface de gestion des conteneurs Docker. Accessible uniquement via Authelia
-            (sous-domaine <code>portainer.llm.test</code>), il permet de superviser l'état
+            sur <code>portainer.alba-arietis.com</code>, il permet de superviser l'état
             de la stack, consulter les logs et redémarrer des services sans passer par la CLI.
           </p>
 
           <div class="callout callout-info">
             <span class="callout-icon">ℹ️</span>
-            <p><strong>Modèles LLM recommandés</strong> avec le RX 6950 XT (16 Go VRAM) :
-            Qwen 2.5 14B Q4_K_M (~9 Go, GPU-only), Mistral Nemo 12B (~7.5 Go, GPU-only),
-            Qwen 2.5 32B Q4_K_M (~20 Go, GPU+RAM offload).</p>
+            <p><strong>Modèles LLM utilisés</strong> avec le RX 6950 XT (16 Go VRAM) :
+            Qwen 2.5 27B Q4_K_M (~16 Go, GPU-only), Qwen 2.5 9B Q8_0 (~9.8 Go, GPU-only).</p>
           </div>
         </section>
 
-        <!-- DÉPLOIEMENT 
+        <!-- DÉPLOIEMENT -->
         <section class="content-section">
-          <h2><span class="s-icon">🚀</span> Déploiement</h2>
-          <p>La stack complète se lance en quelques minutes via Docker Compose.</p>
+          <h2><span class="s-icon">🚀</span> Déploiement automatisé</h2>
+          <p>
+            Le script <code>setup.sh</code> orchestre l'installation complète depuis un Ubuntu
+            fraîchement installé. Chaque étape est idempotente — relancer le script ne casse rien.
+          </p>
 
           <div class="steps">
             <div class="step">
               <div class="step-num">1</div>
               <div class="step-body">
-                <div class="step-title">Prérequis</div>
+                <div class="step-title">Clone & système</div>
                 <div class="step-desc">
-                  Installer <strong>Docker</strong> et <strong>Docker Compose</strong> sur Ubuntu.
-                  Ajouter les entrées DNS dans <code>/etc/hosts</code> (domaine <code>llm.test</code>).
+                  Clone le dépôt GitHub, met à jour Ubuntu, installe Docker et ROCm pour le GPU AMD.
                 </div>
               </div>
             </div>
             <div class="step">
               <div class="step-num">2</div>
               <div class="step-body">
-                <div class="step-title">Configuration</div>
+                <div class="step-title">Pare-feu UFW</div>
                 <div class="step-desc">
-                  Créer le fichier <code>.env</code> avec les secrets (mots de passe MariaDB,
-                  Nextcloud, JWT Authelia). Générer les hashs bcrypt pour <code>users_database.yml</code>.
+                  Configure UFW : ports 22, 80, 443, 51820. Seul le trafic nécessaire est autorisé.
                 </div>
               </div>
             </div>
             <div class="step">
               <div class="step-num">3</div>
               <div class="step-body">
-                <div class="step-title">Lancement de la stack</div>
+                <div class="step-title">Secrets & mots de passe</div>
                 <div class="step-desc">
-                  <code>sudo docker compose up -d</code> — démarre tous les services en arrière-plan.
-                  Caddy génère automatiquement le certificat CA local au premier démarrage.
+                  Génère le <code>.env</code> avec tous les secrets aléatoires (<code>openssl rand</code>)
+                  et hash le mot de passe Authelia en bcrypt via le conteneur officiel.
                 </div>
               </div>
             </div>
             <div class="step">
               <div class="step-num">4</div>
               <div class="step-body">
-                <div class="step-title">Certificat CA local (Firefox)</div>
+                <div class="step-title">Ollama bare metal</div>
                 <div class="step-desc">
-                  Extraire <code>root.crt</code> depuis le conteneur Caddy et l'importer dans
-                  Firefox (<em>Paramètres → Certificats → Autorités</em>) pour faire confiance
-                  au HTTPS local.
+                  Installe Ollama, configure le service systemd (<code>OLLAMA_HOST=0.0.0.0</code>)
+                  et vérifie la détection automatique du GPU ROCm.
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <div class="step-title">Stack Docker Compose</div>
+                <div class="step-desc">
+                  Lance les 7 services. Caddy émet automatiquement les certificats Let's Encrypt
+                  pour tous les sous-domaines de <code>alba-arietis.com</code>.
                 </div>
               </div>
             </div>
           </div>
-        </section> -->
+
+          <div class="code-block" style="margin-top:20px;">
+            <span class="code-lang">bash</span>
+            <pre><span class="code-comment"># Déploiement complet depuis zéro</span>
+git clone https://github.com/HugoLeonardi/llm-server.git
+cd llm-server
+bash setup.sh</pre>
+          </div>
+        </section>
 
         <!-- PROCHAINES ÉTAPES -->
         <section class="content-section">
           <h2><span class="s-icon">🔭</span> Évolutions prévues</h2>
           <ul class="prose">
             <li>
-              <strong>Ollama + ROCm</strong> — Installer et configurer l'accès GPU bare metal
-              (AMD ROCm 7.x) pour faire tourner les modèles LLM avec accélération matérielle.
-            </li>
-            <li>
-              <strong>WireGuard VPN</strong> — Accès distant sécurisé à la stack depuis
-              l'extérieur, sans exposer de port sur Internet.
-            </li>
-            <li>
-              <strong>Production</strong> — Vrai domaine + Let's Encrypt automatique via Caddy,
-              activation du 2FA TOTP Authelia, durcissement avec <code>ufw</code>.
+              <strong>2FA TOTP</strong> — Passer Authelia en <code>two_factor</code>
+              avec application d'authentification (Aegis, Bitwarden).
             </li>
             <li>
               <strong>Hermes Agent</strong> — Déploiement d'un agent IA autonome
               (NousResearch) connecté à Ollama pour des tâches automatisées.
             </li>
+            <li>
+              <strong>Monitoring</strong> — Supervision GPU, services et alertes
+              (Grafana + Prometheus ou équivalent léger).
+            </li>
           </ul>
-          <div class="callout callout-warn">
-            <span class="callout-icon">⚠️</span>
-            <p><strong>Passage en production :</strong> changer <code>tls internal</code> par
-            le vrai domaine dans le Caddyfile (Let's Encrypt s'active automatiquement),
-            passer Authelia en <code>two_factor</code> et migrer SQLite vers PostgreSQL.</p>
-          </div>
         </section>
 
       </div><!-- / main-col -->
@@ -465,12 +453,13 @@ docker run --rm authelia/authelia:latest \
           <div class="s-list">
             <div class="s-item"><span class="s-key">OS</span><span class="s-val">Ubuntu 24.04 LTS</span></div>
             <div class="s-item"><span class="s-key">GPU</span><span class="s-val">AMD RX 6950 XT 16 Go</span></div>
-            <div class="s-item"><span class="s-key">Accélération</span><span class="s-val">ROCm 7.x</span></div>
+            <div class="s-item"><span class="s-key">Accélération</span><span class="s-val">ROCm 6.4</span></div>
             <div class="s-item"><span class="s-key">Orchestration</span><span class="s-val">Docker Compose</span></div>
-            <div class="s-item"><span class="s-key">Reverse Proxy</span><span class="s-val">Caddy (tls internal)</span></div>
-            <div class="s-item"><span class="s-key">SSO</span><span class="s-val">Authelia 4.38+</span></div>
+            <div class="s-item"><span class="s-key">Reverse Proxy</span><span class="s-val">Caddy (Let's Encrypt)</span></div>
+            <div class="s-item"><span class="s-key">SSO</span><span class="s-val">Authelia 4.39</span></div>
             <div class="s-item"><span class="s-key">LLM runtime</span><span class="s-val">Ollama (bare metal)</span></div>
-            <div class="s-item"><span class="s-key">Domaine test</span><span class="s-val">llm.test</span></div>
+            <div class="s-item"><span class="s-key">Domaine</span><span class="s-val">alba-arietis.com</span></div>
+            <div class="s-item"><span class="s-key">VPN</span><span class="s-val">WireGuard (Freebox)</span></div>
           </div>
         </div>
 
@@ -480,7 +469,7 @@ docker run --rm authelia/authelia:latest \
             <span class="tag tag-caddy">Caddy</span>
             <span class="tag tag-authelia">Authelia</span>
             <span class="tag tag-docker">Open WebUI</span>
-            <span class="tag tag-docker">Ollama</span>
+            <span class="tag tag-ollama">Ollama</span>
             <span class="tag tag-docker">Nextcloud</span>
             <span class="tag tag-mysql">MariaDB</span>
             <span class="tag tag-rds">Redis</span>
@@ -494,7 +483,7 @@ docker run --rm authelia/authelia:latest \
           <div class="s-list">
             <div class="s-item">
               <span class="s-key">HTTPS</span>
-              <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✔ Caddy TLS</span>
+              <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✔ Let's Encrypt</span>
             </div>
             <div class="s-item">
               <span class="s-key">Authentification</span>
@@ -502,19 +491,23 @@ docker run --rm authelia/authelia:latest \
             </div>
             <div class="s-item">
               <span class="s-key">2FA (TOTP)</span>
-              <span style="color:var(--accent-orange);font-weight:700;font-size:0.85rem;">⚠ Prod uniquement</span>
+              <span style="color:var(--accent-orange);font-weight:700;font-size:0.85rem;">⚠ À activer</span>
+            </div>
+            <div class="s-item">
+              <span class="s-key">Pare-feu</span>
+              <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✔ UFW actif</span>
             </div>
             <div class="s-item">
               <span class="s-key">Secrets</span>
               <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✔ .env hors Git</span>
             </div>
             <div class="s-item">
-              <span class="s-key">Mots de passe</span>
-              <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✔ Bcrypt</span>
+              <span class="s-key">VPN distant</span>
+              <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✔ WireGuard</span>
             </div>
             <div class="s-item">
-              <span class="s-key">VPN distant</span>
-              <span style="color:var(--accent-orange);font-weight:700;font-size:0.85rem;">⚠ WireGuard prévu</span>
+              <span class="s-key">Ollama exposé</span>
+              <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;">✘ Non</span>
             </div>
           </div>
         </div>
